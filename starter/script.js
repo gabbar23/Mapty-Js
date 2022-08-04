@@ -11,37 +11,58 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(
-    function (position) {
-      const { latitude } = position.coords;
-      const { longitude } = position.coords;
-      const coords = [latitude, longitude];
 
-      const map = L.map('map').setView(coords, 13);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
+class App {
+  #map;
+  #mapEvent;
 
-      map.on('click', function (mapEvent) {
-        const { lat, lng } = mapEvent.latlng;
+  constructor() {
+    this._getPosition();
+  }
 
-        L.marker([lat, lng])
-          .addTo(map)
-          .bindPopup(
-            L.popup({
-              autoClose: false,
-              closeOnClick: false,
-              className:"running-popup"
-            })
-          ).setPopupContent("workout")
-          .openPopup();
-      });
-    },
-    function () {
-      alert('no location found');
+  _getPosition() {
+    
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        this._loadMap.bind(this),
+        function () {
+          alert('no location found');
+        }
+      );
     }
-  );
+  }
+
+  _loadMap(position) {
+    
+    const { latitude } = position.coords;
+    const { longitude } = position.coords;
+    const coords = [latitude, longitude];
+
+    this.#map= L.map('map').setView(coords, 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(this.#map);
+    
+    this.#map.on('click', this._showForm.bind(this))
+
+
+  }
+
+  _showForm(mapE) {
+    this.#mapEvent;
+    this.#mapEvent = mapE;
+    form.classList.remove('hidden');
+    inputDistance.focus();
+  }
+
+
+  _toggleElevationField() {}
+
+  _newWorkout() {}
 }
+
+
+const user=new App();
